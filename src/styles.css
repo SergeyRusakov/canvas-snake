@@ -1,0 +1,8 @@
+.container {
+    padding: 50px;
+}
+
+#canvas {
+    width: 500px;
+    height: 100%;
+}

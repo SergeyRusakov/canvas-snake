@@ -1,8 +1,10 @@
 export class Snake {
 
-    constructor(ctx, blockSize) {
+    constructor(ctx, blockSize, afterBump, canvas, gridWidth, gridHeight) {
         this.ctx = ctx;
         this.blockSize = blockSize;
+        this.gridWidth = gridWidth;
+        this.gridHeight = gridHeight;
         this.blocks = [
             {
                 positionX: 0,
@@ -17,10 +19,21 @@ export class Snake {
                 positionY: blockSize * 2,
             }
         ];
+        this.afterBump = afterBump;
+        this.canvas = canvas;
     }
 
     get head() {
         return this.blocks[this.blocks.length - 1];
+    }
+
+    increase(meal) {
+        this.blocks.push(
+            {
+                positionX: meal.positionX,
+                positionY: meal.positionY,
+            }
+        )
     }
 
     draw() {
@@ -40,7 +53,7 @@ export class Snake {
         let positionX;
         let positionY;
 
-        switch(direction) {
+        switch (direction) {
             case 'up':
                 positionY = this.head.positionY - this.blockSize;
                 positionX = this.head.positionX;
@@ -59,13 +72,48 @@ export class Snake {
                 break;
         }
 
-        this.blocks.push({
-            positionX,
-            positionY,
-        });
+        if (positionX >= this.canvas.width) {
+            this.blocks.push({
+                positionX: 0,
+                positionY
+            });
+        } else if (positionY >= this.canvas.height) {
+            this.blocks.push({
+                positionX,
+                positionY: 0
+            });
+        } else if (positionX < 0) {
+            console.log(this.gridWidth);
+            console.log(this.blockSize);
+            this.blocks.push({
+                positionX: this.gridWidth * this.blockSize - this.blockSize,
+                positionY,
+            });
+        } else if (positionY < 0) {
+            this.blocks.push({
+                positionX,
+                positionY: this.gridHeight * this.blockSize - this.blockSize,
+            });
+        } else {
+            this.blocks.push({
+                positionX,
+                positionY,
+            });
+        }
 
         this.blocks.shift();
+
         this.draw();
+
+        for (let i = 0; i < this.blocks.length - 1; i++) {
+            const block = this.blocks[i];
+            if (
+                block.positionX === this.head.positionX &&
+                block.positionY === this.head.positionY
+            ) {
+                this.afterBump();
+            }
+        }
     }
 
 }

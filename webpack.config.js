@@ -28,4 +28,12 @@ module.exports = {
         hot: true,
         port: 8080,
     },
+    module: {
+        rules: [
+            {
+                test: /\.css$/i,
+                use: ["to-string-loader", "css-loader"],
+            },
+        ],
+    },
 }
