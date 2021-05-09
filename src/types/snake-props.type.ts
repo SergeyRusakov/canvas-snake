@@ -4,5 +4,6 @@ export interface SnakeProps {
     ctx: CanvasRenderingContext2D,
     gridWidth: number,
     gridHeight: number,
+    canvas: HTMLCanvasElement;
     afterBump: () => void,
 }

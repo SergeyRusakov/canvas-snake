@@ -6,7 +6,7 @@ export class Game {
 
     private interval: number;
     private snake: Snake;
-    private canvas: HTMLCanvasElement;
+    private readonly canvas: HTMLCanvasElement;
     private readonly speed: number;
     private direction: Direction;
     private readonly blockSize: number;
@@ -15,8 +15,13 @@ export class Game {
     private readonly ctx: CanvasRenderingContext2D;
     private registeredDirections: Direction[];
     private meal: SnakeBlock;
+    private score: number;
 
-    constructor(elementId: string, private onGameOver?: () => void) {
+    constructor(
+        elementId: string,
+        private onGameOver?: () => void,
+        private onScoreChange?: (score: number) => void,
+    ) {
         this.canvas = document.getElementById(elementId) as HTMLCanvasElement;
         this.ctx = this.canvas.getContext('2d');
         this.speed = 100;
@@ -25,6 +30,7 @@ export class Game {
         this.blockSize = 50;
         this.gridWidth = Math.floor(this.canvas.width / this.blockSize);
         this.gridHeight = Math.floor(this.canvas.height / this.blockSize);
+        this.score = 0;
     }
 
     public start(): void {
@@ -36,17 +42,19 @@ export class Game {
             if (this.registeredDirections.length) {
                 this.direction = this.registeredDirections.pop();
             }
+            this.drawGrid();
+            this.drawMeal();
             if (
                 this.snake.head.positionY === this.meal.positionY &&
                 this.snake.head.positionX === this.meal.positionX
             ) {
                 this.snake.increase(this.meal);
+                this.score++;
+                this.onScoreChange(this.score);
                 this.generateMeal();
             } else {
                 this.snake.move(this.direction);
             }
-            this.drawGrid();
-            this.drawMeal();
         }, this.speed);
     }
 
@@ -58,6 +66,7 @@ export class Game {
             gridWidth: this.gridWidth,
             afterBump: this.gameOver,
             gridHeight: this.gridHeight,
+            canvas: this.canvas,
         });
     }
 
@@ -94,17 +103,27 @@ export class Game {
     }
 
     private drawGrid(): void {
+        this.ctx.strokeStyle = 'rgb(182, 186, 163)';
+        this.ctx.fillStyle = 'rgb(182, 186, 163)';
         for (let i = 0; i < this.gridWidth; i++) {
-            this.ctx.moveTo(i * this.blockSize, 0);
-            this.ctx.lineTo(i * this.blockSize, this.gridHeight * this.blockSize);
+            for (let j = 0; j < this.gridHeight; j++) {
+                this.ctx.strokeRect(
+                    i * this.blockSize,
+                    j * this.blockSize,
+                    this.blockSize,
+                    this.blockSize
+                );
+                this.ctx.fillRect(
+                    i * this.blockSize + 10,
+                    j * this.blockSize + 10,
+                    this.blockSize - 20,
+                    this.blockSize - 20
+                );
+            }
         }
-
-        for (let i = 0; i < this.gridHeight; i++) {
-            this.ctx.moveTo(0, i * this.blockSize);
-            this.ctx.lineTo(this.gridWidth * this.blockSize, i * this.blockSize);
-        }
-
-        this.ctx.stroke();
+        this.ctx.strokeStyle = 'rgb(0, 0, 0)';
+        this.ctx.fillStyle = 'rgb(0, 0, 0)';
+        this.ctx.lineWidth = 2;
     }
 
     private generateMeal(): void {
@@ -121,11 +140,19 @@ export class Game {
     }
 
     private drawMeal(): void {
-        this.ctx.fillRect(
+        this.ctx.strokeStyle = 'rgb(99 103 86)';
+        this.ctx.fillStyle = 'rgb(99 103 86)';
+        this.ctx.strokeRect(
             this.meal.positionX,
             this.meal.positionY,
             this.blockSize,
             this.blockSize
+        );
+        this.ctx.fillRect(
+            this.meal.positionX + 10,
+            this.meal.positionY + 10,
+            30,
+            30
         );
     }
 

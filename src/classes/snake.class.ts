@@ -43,7 +43,7 @@ export class Snake {
                 break;
             case Direction.DOWN:
                 positionY =
-                    positionY < gridHeight * blockSize ?
+                    positionY + blockSize < gridHeight * blockSize ?
                         positionY + blockSize :
                         0;
                 break;
@@ -63,13 +63,20 @@ export class Snake {
 
     private draw(): void {
         const {ctx, blockSize, gridWidth, gridHeight} = this.props;
-        ctx.clearRect(0, 0, gridWidth * blockSize, gridHeight * blockSize);
         this.blocks.forEach(block => {
-            ctx.fillRect(
+            ctx.strokeStyle = 'rgb(0, 0, 0)';
+            ctx.fillStyle = 'rgb(0, 0, 0)';
+            ctx.strokeRect(
                 block.positionX,
                 block.positionY,
                 blockSize,
                 blockSize
+            );
+            ctx.fillRect(
+                block.positionX + 10,
+                block.positionY + 10,
+                30,
+                30
             );
         });
     }
