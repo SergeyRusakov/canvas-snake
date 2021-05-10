@@ -4,6 +4,8 @@ import { SnakeBlock } from '../types/snake-block.type';
 
 export class Game {
 
+    public isGameOver: boolean;
+    public score: number;
     private interval: number;
     private snake: Snake;
     private readonly canvas: HTMLCanvasElement;
@@ -15,7 +17,6 @@ export class Game {
     private readonly ctx: CanvasRenderingContext2D;
     private registeredDirections: Direction[];
     private meal: SnakeBlock;
-    private score: number;
 
     constructor(
         elementId: string,
@@ -50,7 +51,6 @@ export class Game {
             ) {
                 this.snake.increase(this.meal);
                 this.score++;
-                this.onScoreChange(this.score);
                 this.generateMeal();
             } else {
                 this.snake.move(this.direction);
@@ -64,7 +64,7 @@ export class Game {
             blockSize: this.blockSize,
             ctx: this.ctx,
             gridWidth: this.gridWidth,
-            afterBump: this.gameOver,
+            afterBump: () => this.gameOver(),
             gridHeight: this.gridHeight,
             canvas: this.canvas,
         });
@@ -98,8 +98,8 @@ export class Game {
     }
 
     private gameOver(): void {
-        console.log('sdfasdfasdf')
-        // this.onGameOver();
+        this.onGameOver();
+        clearInterval(this.interval);
     }
 
     private drawGrid(): void {
@@ -156,6 +156,8 @@ export class Game {
         );
     }
 
-
+    public pauseGame(): void {
+        clearInterval(this.interval);
+    }
 
 }
